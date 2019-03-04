@@ -88,9 +88,9 @@ function promptBuyer() {
                         var costOfProduct = res[0].price * answer.stock_quantityChoice;
                         console.log("\tTransaction complete! \n\tTotal Cost: $" + costOfProduct + "\n");
                         displayProducts();
-                  }
-                )
-              }
+                    }
+                  )
+                }
               )
             }
           }
