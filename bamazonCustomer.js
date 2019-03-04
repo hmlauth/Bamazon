@@ -58,7 +58,13 @@ function promptBuyer() {
         {
           type: "input",
           message: "How many units would you like buy of this product?",
-          name: "stock_quantityChoice"
+          name: "stock_quantityChoice",
+          validate: function(value) {
+            if (isNaN(value) === false) {
+              return true;
+            }
+            return false;
+          }
         }
       ]).then(function (answer) {
         console.log("Updating quantities...\n");
