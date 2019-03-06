@@ -64,20 +64,14 @@ function viewLowInventory() {
           function (err, res) {
             if (err) throw err;
             var lowInventoryItems = [];
+            console.log(lowInventoryItems);
+            console.log(res[0]);
             for (var i = 0; i < res.length; i++) {
-                if (res[i].stock_quantity === 5 ) {
+                if (res[i].stock_quantity <= 5 ) {
                     lowInventoryItems.push(res[i])
                 }
-                return lowInventoryItems
             }
-            // if (res <= 5) {
-            //     console.table()
-            // }
-
-            // if (newStockQuantity < 0) {
-            //   console.log("Insufficient quantity! There are only " + oldStockQuantity + " units of this product available.");
-            //   promptBuyer();
-            // } else {
+            console.table(lowInventoryItems);
         }
     )
 }
