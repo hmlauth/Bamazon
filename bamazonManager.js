@@ -104,7 +104,25 @@ function addNewProduct() {
             type: "rawlist",
             message: "What department is this product in?",
             name: "departmentName",
-            choices: ["Appliances","Apps & Games","Arts, Crafts & Sewing","Auotmotive Parts & Accessories","Baby","Beauty & Personal Care","Books","CDs","Clothing, Shoes & Jewelry","Electronics","Garden & Outdoor","Gift Cards","Grocery & Gourmet Foods","Health & Fitness","Home & Kitchen","Travel","Video Games"]    
+            choices: [
+                "Appliances",
+                "Apps & Games",
+                "Arts, Crafts & Sewing",
+                "Automotive Parts & Accessories",
+                "Baby",
+                "Beauty & Personal Care",
+                "Books",
+                "CDs",
+                "Clothing, Shoes & Jewelry",
+                "Electronics",
+                "Garden & Outdoor",
+                "Gift Cards",
+                "Grocery & Gourmet Foods",
+                "Health & Fitness",
+                "Home & Kitchen",
+                "Travel",
+                "Video Games"
+                ]    
         },
         {
             type: "input",
