@@ -47,7 +47,7 @@ function promptBuyer() {
   ]).then(function (answer) {
     if (answer.buyerChoice === "No") {
       console.log("Thanks for shopping!");
-      console.log("Press CTRL c to exit.")
+      connection.end();
     } else if (answer.buyerChoice === "Yes") {
       inquirer.prompt([
         {
@@ -77,7 +77,11 @@ function promptBuyer() {
             var newStockQuantity = oldStockQuantity - answer.stock_quantityChoice;
 
             if (newStockQuantity < 0) {
-              console.log("Insufficient quantity! There are only " + oldStockQuantity + " units of this product available.");
+                if (oldStockQuantity === 1) {
+                  console.log("Insufficient quantity! There is only " + oldStockQuantity + " unit of this product available.\n");
+                } else if (oldStockQuantity > 1) {
+                  console.log("Insufficient quantity! There are only " + oldStockQuantity + " units of this product available.\n");
+                }
               promptBuyer();
             } else {
               connection.query(

@@ -20,36 +20,44 @@ connection.connect(function (err) {
     if (err) throw err;
   });
 
+function welcomeManager() {
+    console.log("Welcome to Manager View!");
+    promptManager();
+  };
+
 function promptManager() {
     inquirer
-      .prompt([
-          {
-              type: "rawlist",
-              message: "Welcome! Choose an option:",
-              choices: [
-                  "View Products for Sale",
-                  "View Low Inventory",
-                  "Add to Inventory",
-                  "Add New Product"
-                  ],
-              name: "managerChoice"
-          }
-      ]).then(function(answers) {
-          console.log(answers.managerChoice);
-          if (answers.managerChoice === "View Products for Sale") {
+        .prompt([
+            {
+                type: "rawlist",
+                message: "How would you like to proceed?",
+                choices: [
+                    "View Products for Sale",
+                    "View Low Inventory",
+                    "Add to Inventory",
+                    "Add New Product",
+                    "Remove a Product",
+                    "Exit"
+                    ],
+                name: "managerChoice"
+            }
+        ]).then(function(answers) {
+            if (answers.managerChoice === "View Products for Sale") {
                 displayProducts();
-              } else if (answers.managerChoice === "View Low Inventory") {
+            } else if (answers.managerChoice === "View Low Inventory") {
                 viewLowInventory();
-              } else if (answers.managerChoice === "Add to Inventory") {
+            } else if (answers.managerChoice === "Add to Inventory") {
                 addToInventory();
-              } else if (answers.managerChoice === "Add New Product") {
+            } else if (answers.managerChoice === "Add New Product") {
                 addNewProduct();
-              } else if (answers.managerChoice === "Exit") {
+            } else if (answers.managerChoice === "Remove a Product from Inventory") {
+                removeProductFromInventory();
+            } else if (answers.managerChoice === "Exit") {
                     connection.end();
-              }
-      })
-  }
-
+            }
+            }
+        )
+  };
 
 // display all items available for sale
 function displayProducts() {
@@ -58,34 +66,8 @@ function displayProducts() {
       "SELECT * FROM products", 
       function (err, res) {
         if (err) throw err;
-        // Log all res of the SELECT statement
         console.table(res);
-        inquirer
-            .prompt([
-                {
-                    type: "rawlist",
-                    message: "How would you like to proceed?",
-                    choices: [
-                        "View Low Inventory",
-                        "Add to Inventory",
-                        "Add New Product",
-                        "Exit"
-                        ],
-                    name: "managerChoice"
-                }
-            ]).then(function(answers) {
-
-                if (answers.managerChoice === "View Low Inventory") {
-                        viewLowInventory();
-                    } else if (answers.managerChoice === "Add to Inventory") {
-                        addToInventory();
-                    } else if (answers.managerChoice === "Add New Product") {
-                        addNewProduct();
-                    } else if (answers.managerChoice === "Exit") {
-                        connection.end();
-                    }
-                }
-            )
+        promptManager();
         }
     )
 }
@@ -104,33 +86,8 @@ function viewLowInventory() {
             }
 
             console.table(lowInventoryItems);
+            promptManager();
 
-            inquirer
-                .prompt([
-                    {
-                        type: "rawlist",
-                        message: "How would you like to proceed?",
-                        choices: [
-                            "View Products for Sale",
-                            "Add to Inventory",
-                            "Add New Product",
-                            "Exit"
-                            ],
-                        name: "managerChoice"
-                    }
-                ]).then(function(answers) {
-                    if (answers.managerChoice === "View Products for Sale") {
-                            displayProducts();
-                        } else if (answers.managerChoice === "View Low Inventory") {
-                            viewLowInventory();
-                        } else if (answers.managerChoice === "Add to Inventory") {
-                            addToInventory();
-                        } else if (answers.managerChoice === "Add New Product") {
-                            addNewProduct();
-                        } else if (answers.managerChoice === "Exit") {
-                            connection.end();
-                        }
-                })
             }
     )
 }
@@ -144,9 +101,10 @@ function addNewProduct() {
             name: "productName",
         },
         {
-            type: "input",
+            type: "rawlist",
             message: "What department is this product in?",
             name: "departmentName",
+            choices: ["Appliances","Apps & Games","Arts, Crafts & Sewing","Auotmotive Parts & Accessories","Baby","Beauty & Personal Care","Books","CDs","Clothing, Shoes & Jewelry","Electronics","Garden & Outdoor","Gift Cards","Grocery & Gourmet Foods","Health & Fitness","Home & Kitchen","Travel","Video Games"]    
         },
         {
             type: "input",
@@ -183,34 +141,8 @@ function addNewProduct() {
                 },
                 function (err, res) {
                     if (err) throw err;
-                    displayProducts();
+                    promptManager();
                 },
-
-                inquirer
-                    .prompt([
-                        {
-                            type: "rawlist",
-                            message: "How would you like to proceed?",
-                            choices: [
-                                "View Products for Sale",
-                                "Add to Inventory",
-                                "Add New Product",
-                                "Exit"
-                                ],
-                            name: "managerChoice"
-                        }
-                    ]).then(function(answers) {
-                        if (answers.managerChoice === "View Products for Sale") {
-                            displayProducts();
-                            } else if (answers.managerChoice === "Add to Inventory") {
-                                addToInventory();
-                            } else if (answers.managerChoice === "Add New Product") {
-                                addNewProduct();
-                            } else if (answers.managerChoice === "Exit") {
-                                connection.end();
-                            }
-                        }
-                    )
             );
         });
 }
@@ -256,7 +188,7 @@ function addToInventory() {
                     chosenItem = res[i]
                 }
             }
-            
+
             var currentQuantity = chosenItem.stock_quantity + parseInt(answer.quantity);
 
             connection.query(
@@ -273,16 +205,47 @@ function addToInventory() {
                 if (error) throw err;
                 console.log(error);
                 console.log("Inventory successfully updated!");
-                displayProducts();
+                promptManager();
                 }
             );
         });
     });
 }
 
-// function removeProductFromInventory() {
-
-// }
+function removeProductFromInventory() {
+    connection.query("SELECT * FROM products", 
+    function(err, res) {
+    if (err) throw err;
+        inquirer
+            .prompt([
+                {
+                    name: "choice",
+                    type: "rawlist",
+                    message: "Which product would you like to remove?",
+                    choices: function() {
+                        var choiceArray = [];
+                        for (var i = 0; i < res.length; i++) {
+                            choiceArray.push(res[i].product_name);
+                            }
+                            return choiceArray;
+                        },
+                }
+            ]).then(function(answer) {
+                console.log("Deleting " + answer.choice + "\n");
+                connection.query("DELETE FROM products WHERE ?",
+                    {
+                        product_name: answer.choice
+                    },
+                    function(err, res) {
+                        console.log(answer.choice + " successfully deleted!")
+                    // Call readProducts AFTER the DELETE completes
+                    promptManager();
+                    }
+                );
+            })
+        }
+    )
+}
 
 // METHODS
-promptManager()
+welcomeManager();
