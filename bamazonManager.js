@@ -43,9 +43,9 @@ function promptManager() {
               } else if (answers.managerChoice === "Add to Inventory") {
                 addToInventory();
               } else if (answers.managerChoice === "Add New Product") {
-          
+                addNewProduct();
               } else if (answers.managerChoice === "Exit") {
-                      connection.end();
+                    connection.end();
               }
       })
   }
@@ -58,7 +58,7 @@ function displayProducts() {
       "SELECT * FROM products", 
       function (err, res) {
         if (err) throw err;
-        // Log all results of the SELECT statement
+        // Log all res of the SELECT statement
         console.table(res);
         inquirer
             .prompt([
@@ -81,6 +81,8 @@ function displayProducts() {
                         addToInventory();
                     } else if (answers.managerChoice === "Add New Product") {
                         addNewProduct();
+                    } else if (answers.managerChoice === "Exit") {
+                        connection.end();
                     }
                 }
             )
@@ -117,7 +119,6 @@ function viewLowInventory() {
                         name: "managerChoice"
                     }
                 ]).then(function(answers) {
-                    console.log(answers.managerChoice);
                     if (answers.managerChoice === "View Products for Sale") {
                             displayProducts();
                         } else if (answers.managerChoice === "View Low Inventory") {
@@ -182,39 +183,104 @@ function addNewProduct() {
                 },
                 function (err, res) {
                     if (err) throw err;
-                }
-
-                displayProducts();
+                    displayProducts();
+                },
 
                 inquirer
-                .prompt([
-                    {
-                        type: "rawlist",
-                        message: "How would you like to proceed?",
-                        choices: [
-                            "View Products for Sale",
-                            "Add to Inventory",
-                            "Add New Product",
-                            "Exit"
-                            ],
-                        name: "managerChoice"
-                    }
-                ]).then(function(answers) {
-
-                    if (answers.managerChoice === "View Products for Sale") {
-                        displayProducts();
-                        } else if (answers.managerChoice === "Add to Inventory") {
-                            addToInventory();
-                        } else if (answers.managerChoice === "Add New Product") {
-                            addNewProduct();
+                    .prompt([
+                        {
+                            type: "rawlist",
+                            message: "How would you like to proceed?",
+                            choices: [
+                                "View Products for Sale",
+                                "Add to Inventory",
+                                "Add New Product",
+                                "Exit"
+                                ],
+                            name: "managerChoice"
                         }
-                    }
-                )
+                    ]).then(function(answers) {
+                        if (answers.managerChoice === "View Products for Sale") {
+                            displayProducts();
+                            } else if (answers.managerChoice === "Add to Inventory") {
+                                addToInventory();
+                            } else if (answers.managerChoice === "Add New Product") {
+                                addNewProduct();
+                            } else if (answers.managerChoice === "Exit") {
+                                connection.end();
+                            }
+                        }
+                    )
             );
         });
 }
 
-// function addTo Inventory() {
+function addToInventory() {
+    // query products table to obtain list of products so that user can chose from current inventory.
+    connection.query("SELECT * FROM products", 
+    function(err, res) {
+        if (err) throw err;
+        // now that we have queried the table, prompt user to select on of the products in the current inventory. 
+        inquirer
+        .prompt([
+            {
+                name: "choice",
+                type: "rawlist",
+                message: "What product would you like to add too?",
+                choices: function() {
+                    var choiceArray = [];
+                    for (var i = 0; i < res.length; i++) {
+                        choiceArray.push(res[i].product_name);
+                        }
+                        return choiceArray;
+                    },
+            },
+            {
+                name: "quantity",
+                type: "input",
+                message: "How many units would you like to add?",
+                validate: function(value) {
+                    if (isNaN(value) === false) {
+                        return true;
+                        }
+                        return false;
+                    }
+            }
+        ])
+        .then(function(answer) {
+            console.log("Updating inventory for " + answer.choice + "...");
+            console.log(res);
+            var chosenItem;
+            for (var i = 0; i < res.length; i++) {
+                if (res[i].product_name === answer.choice) {
+                    chosenItem = res[i]
+                }
+            }
+            
+            var currentQuantity = chosenItem.stock_quantity + parseInt(answer.quantity);
+
+            connection.query(
+                "UPDATE products SET ? WHERE ?",
+                [
+                    {
+                        stock_quantity: currentQuantity
+                    },
+                    {
+                        product_name: answer.choice
+                    }
+                ],
+                function(error) {
+                if (error) throw err;
+                console.log(error);
+                console.log("Inventory successfully updated!");
+                displayProducts();
+                }
+            );
+        });
+    });
+}
+
+// function removeProductFromInventory() {
 
 // }
 
