@@ -42,19 +42,30 @@ function promptManager() {
                 name: "managerChoice"
             }
         ]).then(function(answers) {
-            if (answers.managerChoice === "View Products for Sale") {
-                displayProducts();
-            } else if (answers.managerChoice === "View Low Inventory") {
-                viewLowInventory();
-            } else if (answers.managerChoice === "Add to Inventory") {
-                addToInventory();
-            } else if (answers.managerChoice === "Add New Product") {
-                addNewProduct();
-            } else if (answers.managerChoice === "Remove a Product from Inventory") {
-                removeProductFromInventory();
-            } else if (answers.managerChoice === "Exit") {
+            switch (answers.managerChoice) {
+                case "View Products for Sale":
+                    displayProducts();
+                    break;
+
+                case "View Low Inventory":
+                    viewLowInventory();
+                    break;
+
+                case "Add to Inventory":
+                    addToInventory();
+                    break;
+                    
+                case "Add New Product":
+                    addNewProduct();
+                    break;
+
+                case "Remove a Product from Inventory":
+                    removeProductFromInventory();
+                    break;
+                    
+                case "Exit":
                     connection.end();
-            }
+                }
             }
         )
   };
