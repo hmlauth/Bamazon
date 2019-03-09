@@ -69,13 +69,19 @@ function promptBuyer() {
       ]).then(function (answer) {
         console.log("Updating quantities...\n");
         connection.query(
-          "SELECT stock_quantity,price FROM products WHERE item_id = ?", 
+          "SELECT stock_quantity,price,product_sales FROM products WHERE item_id = ?", 
           answer.item_idChoice, 
           function (err, res) {
             if (err) throw err;
             var oldStockQuantity = res[0].stock_quantity;
             var newStockQuantity = oldStockQuantity - answer.stock_quantityChoice;
+            // total cost of purchase
             var costOfProduct = res[0].price * answer.stock_quantityChoice;
+            console.log("res", res);
+            console.log("product_sales: " + res[0].product_sales);
+            console.log("Total Cost of Proudct: " + costOfProduct);
+            var productSales = res[0].product_sales + costOfProduct;
+            console.log("productSales: " + productSales);
 
             if (newStockQuantity < 0) {
                 if (oldStockQuantity === 1) {
@@ -86,19 +92,21 @@ function promptBuyer() {
               promptBuyer();
             } else {
               connection.query(
-                "UPDATE products SET ? WHERE ?", 
-                  [
-                    {stock_quantity: newStockQuantity},
-                    {item_id: answer.item_idChoice}
-                  ], function (err, res) {
-                        console.log("\tTransaction complete! \n\tTotal Cost: $" + costOfProduct + "\n");
-                        displayProducts();
-                    } // checked
-                  ) // checked
-                } // checked
-              } // checked
-            )
-          }); // checked
-      }; // checked
-    }) // checked
-  }
+                "UPDATE products SET stock_quantity = ?, product_sales = ? WHERE item_id = ?",
+                [
+                  newStockQuantity,
+                  productSales,
+                  answer.item_idChoice
+                ], 
+                function (err, res) {
+                    console.log("\tTransaction complete! \n\tTotal Cost: $" + costOfProduct + "\n");
+                    displayProducts();
+                  } 
+                ) 
+              } 
+            } 
+          )
+        }); 
+    }; 
+  }) 
+}
