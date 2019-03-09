@@ -51,8 +51,9 @@ function promptSupervisor() {
 
 function displayOverviewOfDepartments() {
     console.log("\nShowing current department stats...\n");
+    var query = "SELECT * FROM products JOIN departments ON products.department_name = departments.department_name"
     connection.query(
-      "SELECT * FROM departments", 
+      query, 
       function (err, res) {
         if (err) throw err;
         console.table(res);
@@ -60,5 +61,8 @@ function displayOverviewOfDepartments() {
         }
     )
 }
+
+
+
 
 promptSupervisor();
