@@ -69,12 +69,13 @@ function promptBuyer() {
       ]).then(function (answer) {
         console.log("Updating quantities...\n");
         connection.query(
-          "SELECT stock_quantity FROM products WHERE item_id = ?", 
+          "SELECT stock_quantity,price FROM products WHERE item_id = ?", 
           answer.item_idChoice, 
           function (err, res) {
             if (err) throw err;
             var oldStockQuantity = res[0].stock_quantity;
             var newStockQuantity = oldStockQuantity - answer.stock_quantityChoice;
+            var costOfProduct = res[0].price * answer.stock_quantityChoice;
 
             if (newStockQuantity < 0) {
                 if (oldStockQuantity === 1) {
@@ -90,22 +91,14 @@ function promptBuyer() {
                     {stock_quantity: newStockQuantity},
                     {item_id: answer.item_idChoice}
                   ], function (err, res) {
-                    connection.query(
-                      "SELECT price FROM products WHERE item_id = ?", 
-                      answer.item_idChoice, 
-                      function (err, res) {
-                        if (err) throw err;
-                        var costOfProduct = res[0].price * answer.stock_quantityChoice;
                         console.log("\tTransaction complete! \n\tTotal Cost: $" + costOfProduct + "\n");
                         displayProducts();
-                    }
-                  )
-                }
-              )
-            }
-          }
-        );
-      });
-    }
-  })
-}
+                    } // checked
+                  ) // checked
+                } // checked
+              } // checked
+            )
+          }); // checked
+      }; // checked
+    }) // checked
+  }
