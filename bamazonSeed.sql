@@ -59,12 +59,13 @@ VALUES
 SELECT * FROM products;
 SELECT * FROM departments
 
--- query to join able for manager view
+-- query to join table products and departments table for supervisor view and include the products.product_sales.
 SELECT 
-	d.department_id di,
-    d.department_name dn,
-    d.over_head_costs dohc, 
-    p.product_sales ps 
-FROM departments d
-JOIN products p
-ON (p.department_name = dn);
+	departments.department_id,
+    departments.department_name,
+    departments.over_head_costs, 
+    products.product_sales,
+    (departments.over_head_costs - products.product_sales) AS total_profit
+FROM departments
+INNER JOIN products
+ON (products.department_name = departments.department_name);
