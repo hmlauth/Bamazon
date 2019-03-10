@@ -59,7 +59,7 @@ function promptManager() {
                     addNewProduct();
                     break;
 
-                case "Remove a Product from Inventory":
+                case "Remove a Product":
                     removeProductFromInventory();
                     break;
                     
@@ -104,6 +104,9 @@ function viewLowInventory() {
 }
 
 function addNewProduct() {
+    connection.query("SELECT * FROM departments", 
+    function(err, res) {
+        if (err) throw err;
     inquirer
         .prompt([
         {
@@ -115,25 +118,13 @@ function addNewProduct() {
             type: "rawlist",
             message: "What department is this product in?",
             name: "departmentName",
-            choices: [
-                "Appliances",
-                "Apps & Games",
-                "Arts, Crafts & Sewing",
-                "Automotive Parts & Accessories",
-                "Baby",
-                "Beauty & Personal Care",
-                "Books",
-                "CDs",
-                "Clothing, Shoes & Jewelry",
-                "Electronics",
-                "Garden & Outdoor",
-                "Gift Cards",
-                "Grocery & Gourmet Foods",
-                "Health & Fitness",
-                "Home & Kitchen",
-                "Travel",
-                "Video Games"
-                ]    
+            choices: function() {
+                var choiceArray = [];
+                for (var i = 0; i < res.length; i++) {
+                    choiceArray.push(res[i].department_name);
+                    }
+                    return choiceArray;
+                },  
         },
         {
             type: "input",
@@ -166,14 +157,17 @@ function addNewProduct() {
                     product_name: answer.productName,
                     department_name: answer.departmentName,
                     price: answer.pricePoint || 0,
-                    stock_quantity: answer.stockQuantity || 0
+                    stock_quantity: answer.stockQuantity || 0,
+                    product_sales: 0
                 },
                 function (err, res) {
                     if (err) throw err;
+                    console.log("Updated!")
                     promptManager();
                 },
             );
         });
+    })
 }
 
 function addToInventory() {

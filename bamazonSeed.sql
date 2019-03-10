@@ -60,6 +60,11 @@ SELECT * FROM products;
 SELECT * FROM departments
 
 -- query to join able for manager view
-SELECT departments.department_id,departments.department_name,departments.over_head_costs, products.product_sales FROM departments
-JOIN products 
-ON (products.department_name = departments.department_name);
+SELECT 
+	d.department_id di,
+    d.department_name dn,
+    d.over_head_costs dohc, 
+    p.product_sales ps 
+FROM departments d
+JOIN products p
+ON (p.department_name = dn);

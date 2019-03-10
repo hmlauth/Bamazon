@@ -39,7 +39,7 @@ function promptSupervisor() {
                 break;
 
             case ("Create a New Department"):
-                // function
+                createNewDepartment();
                 break;
 
             case ("Exit"):
@@ -62,7 +62,46 @@ function displayOverviewOfDepartments() {
     )
 }
 
-
+function createNewDepartment() {
+    connection.query("SELECT * FROM departments", 
+    function(err, res) {
+        if (err) throw err;
+    inquirer
+        .prompt([
+        {
+            type: "input",
+            message: "What is the name of the department?",
+            name: "departmentName",
+        },
+        {
+            type: "input",
+            message: "What is the overhead cost for this department?",
+            name: "overHeadCosts",
+            validate: function(value) {
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                return false;
+                }
+        }
+        ]).then(function(answer) {
+            console.log("Updating departments...\n");
+            // when finished prompting, insert a new item into the db with that info
+            connection.query(
+                "INSERT INTO departments SET ?",
+                {
+                    department_name: answer.departmentName,
+                    over_head_costs: answer.overHeadCosts
+                },
+                function (err, res) {
+                    if (err) throw err;
+                    console.log("Department Added!")
+                    promptSupervisor();
+                },
+            );
+        });
+    })
+}
 
 
 promptSupervisor();
