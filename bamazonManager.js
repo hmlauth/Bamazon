@@ -205,7 +205,6 @@ function addToInventory() {
         ])
         .then(function(answer) {
             console.log("Updating inventory for " + answer.choice + "...");
-            console.log(res);
             var chosenItem;
             for (var i = 0; i < res.length; i++) {
                 if (res[i].product_name === answer.choice) {
@@ -227,8 +226,7 @@ function addToInventory() {
                 ],
                 function(error) {
                 if (error) throw err;
-                console.log(error);
-                console.log("Inventory successfully updated!");
+                console.log("Inventory for " + answer.choice + " successfully updated with " + chosenItem.stock_quantity + " units.\nTotal units now at " + currentQuantity + ".");
                 promptManager();
                 }
             );
