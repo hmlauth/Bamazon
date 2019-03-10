@@ -1,6 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 var consoleTable = require("console.table");
+var colors = require('colors');
 
 var connection = mysql.createConnection({
     host: "localhost",
