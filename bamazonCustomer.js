@@ -2,6 +2,16 @@ var mysql = require("mysql");
 var inquirer = require("inquirer");
 var consoleTable = require("console.table");
 var colors = require('colors');
+    colors.setTheme({
+        input: 'blue',
+        verbose: 'cyan',
+        prompt: 'white',
+        info: 'green',
+        data: 'grey',
+        warn: 'yellow',
+        error: 'red',
+        silly: 'rainbow'
+    });
 
 // CONNECT TO MYSQL
 var connection = mysql.createConnection({
@@ -26,7 +36,7 @@ connection.connect(function (err) {
 // FUNCTIONS
 // display all items available for sale
 function displayProducts() {
-  console.log("\nShowing current inventory...\n");
+  console.log("\nShowing current inventory...\n".info);
   connection.query(
     "SELECT item_id,product_name,department_name,price,stock_quantity FROM products", 
     function (err, res) {
@@ -38,11 +48,21 @@ function displayProducts() {
 }
 
 function promptBuyer() {
+  connection.query("SELECT * FROM products",
+  function(err, res) {
+    if (err) throw err;
     inquirer.prompt([
       {
-        type: "input",
-        message: "From the table above, please select the item_id for the product you'd like to purchase.",
-        name: "item_idChoice"
+        type: "rawlist",
+        message: "Which product would you like to purchase?\n",
+        name: "item_idChoice",
+        choices: function() {
+          var choiceArray = [];
+          for (var i = 0; i < res.length; i++) {
+              choiceArray.push(res[i].product_name);
+              }
+              return choiceArray;
+          },
       },
       {
         type: "input",
@@ -52,14 +72,23 @@ function promptBuyer() {
           if (isNaN(value) === false) {
             return true;
           }
-          return false;
+          return "Please enter a valid number";
         }
       }
     ]).then(function (answer) {
-      console.log("Updating quantities...\n");
+      console.log("\nTransaction processing...\n".data);
+
+      var chosenItem;
+      for (var i = 0; i < res.length; i++) {
+          if (res[i].product_name === answer.item_idChoice) {
+              chosenItem = res[i]
+          }
+      }
+      var chosenItemID = chosenItem.item_id;
+
       connection.query(
         "SELECT stock_quantity,price,product_sales FROM products WHERE item_id = ?", 
-        answer.item_idChoice, 
+        chosenItemID, 
         function (err, res) {
           if (err) throw err;
           var oldStockQuantity = res[0].stock_quantity;
@@ -70,9 +99,9 @@ function promptBuyer() {
 
           if (newStockQuantity < 0) {
               if (oldStockQuantity === 1) {
-                console.log("Insufficient quantity! There is only " + oldStockQuantity + " unit of this product available.\n");
+                console.log("Insufficient quantity!".warn + " There is only ".info + oldStockQuantity + " unit of this product available.\n".info);
               } else if (oldStockQuantity > 1) {
-                console.log("Insufficient quantity! There are only " + oldStockQuantity + " units of this product available.\n");
+                console.log("Insufficient quantity!".warn + " There are only ".info + oldStockQuantity + " units of this product available.\n".info);
               }
             promptBuyer();
           } else {
@@ -84,19 +113,40 @@ function promptBuyer() {
                 answer.item_idChoice
               ], 
               function (err, res) {
-                  console.log("\tTransaction complete! \n\tTotal Cost: $" + costOfProduct + "\n");
-                  promptBuyer();
+                  console.log("\tTransaction complete!".info.bold + "\n\tTotal Cost: ".info + "$" + costOfProduct + "\n".info);
+                  console.log("\n")
+                  inquirer  
+                    .prompt([
+                      {
+                        type: "rawlist",
+                        message: "Would you like to place another purchase?",
+                        choices: ["Yes","No"],
+                        name: "secondPurchaseChoice"
+                      }
+                    ])
+                    .then(function(answer) {
+                      switch (answer.secondPurchaseChoice) {
+                        case ("Yes"):
+                          promptBuyer();
+                          break;
+
+                        case("No"):
+                          stopShopping();
+                          break;
+                      }
+                    })
                 } 
               ) 
             } 
           } 
         )
       }); 
-    }; 
+    });
+  }; 
 
 
 function startShopping() {
-  console.log("\nWelcome to Bamazon!\n");
+  console.log("\nWelcome to Bamazon!\n".verbose);
   inquirer.prompt([
     {
       type: "list",
@@ -106,10 +156,14 @@ function startShopping() {
     }
   ]).then(function (answer) {
     if (answer.buyerChoice === "Exit") {
-      console.log("Thank you for stopping by. See you next time!");
-      connection.end();
+      stopShopping();
     } else if (answer.buyerChoice === "Yes") {
       displayProducts();
     }
   })
+}
+
+function stopShopping() {
+  console.log("Thank you for stopping by. See you next time!");
+  connection.end();
 }
