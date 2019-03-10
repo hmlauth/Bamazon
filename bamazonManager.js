@@ -2,6 +2,16 @@ var mysql = require("mysql");
 var inquirer = require("inquirer");
 var consoleTable = require("console.table");
 var colors = require('colors');
+    colors.setTheme({
+        input: 'blue',
+        verbose: 'cyan',
+        prompt: 'white',
+        info: 'green',
+        data: 'grey',
+        warn: 'yellow',
+        error: 'red',
+        silly: 'rainbow'
+    });
 
 var connection = mysql.createConnection({
     host: "localhost",
