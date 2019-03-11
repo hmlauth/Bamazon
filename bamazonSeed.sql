@@ -65,7 +65,7 @@ SELECT
     departments.department_name,
     departments.over_head_costs, 
     products.product_sales,
-    (departments.over_head_costs - products.product_sales) AS total_profit
+    (products.product_sales - departments.over_head_costs) AS total_profit
 FROM departments
 INNER JOIN products
 ON (products.department_name = departments.department_name);

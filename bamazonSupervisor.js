@@ -1,6 +1,17 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 var consoleTable = require("console.table");
+var colors = require('colors');
+    colors.setTheme({
+        input: 'blue',
+        verbose: 'cyan',
+        prompt: 'white',
+        info: 'green',
+        data: 'grey',
+        warn: 'yellow',
+        error: 'red',
+        silly: 'rainbow'
+    });
 
 // CONNECT TO MYSQL
 var connection = mysql.createConnection({
@@ -19,8 +30,13 @@ var connection = mysql.createConnection({
 
 connection.connect(function (err) {
   if (err) throw err;
- // add function here
+  welcomeSupervisor();
 });
+
+function welcomeSupervisor() {
+    console.log("\nWelcome to Supervisor View!\n".verbose);
+    promptSupervisor();
+}
 
 function promptSupervisor() {
     inquirer
@@ -28,14 +44,18 @@ function promptSupervisor() {
         {
             type: "rawlist",
             message: "How would you like to proceed?",
-            choices: ["View Products for Sale","Create a New Department","Exit"],
+            choices: ["View Products for Sale","View All Departments","Create a New Department","Exit"],
             name: "supervisorChoice"
         }
     ])
     .then(function(answers) {
         switch (answers.supervisorChoice) {
+            case ("View All Departments"):
+                viewAllDepartments();
+                break;
+
             case ("View Products for Sale"):
-                displayOverviewOfDepartments();
+                viewProductsForSale();
                 break;
 
             case ("Create a New Department"):
@@ -49,17 +69,26 @@ function promptSupervisor() {
     })
 }
 
-function displayOverviewOfDepartments() {
-    console.log("\nShowing current department stats...\n");
-    var query = "SELECT departments.department_id,departments.department_name,departments.over_head_costs,products.product_sales,(products.product_sales - departments.over_head_costs) AS total_profit FROM departments INNER JOIN products ON (products.department_name = departments.department_name)";
-    connection.query(
-      query, 
-      function (err, res) {
-        if (err) throw err;
-        console.table(res);
-        promptSupervisor();
-        }
-    )
+function viewProductsForSale() {
+    getAllDepartments();
+    console.log("\nGetting department overview...\n".data);
+        var query = "SELECT departments.department_id,departments.department_name,departments.over_head_costs,products.product_sales,(products.product_sales - departments.over_head_costs) AS total_profit FROM departments INNER JOIN products ON (products.department_name = departments.department_name)";
+        connection.query(
+            query, 
+            function (err, res) {
+                if (err) throw err;
+                // determine how many ACTIVE departments there are
+                var totalActiveDepartmentArray = [];
+                    for (var i = 0; i < res.length; i++) {
+                        totalActiveDepartmentArray.push(res[i].department_id);
+                    }
+                    
+                    console.log(("Showing " + totalActiveDepartmentArray.length + " active departments.\n").info);
+
+                console.table(res);
+                promptSupervisor();
+            }
+        )
 }
 
 function createNewDepartment() {
@@ -85,7 +114,7 @@ function createNewDepartment() {
                 }
         }
         ]).then(function(answer) {
-            console.log("Updating departments...\n");
+            console.log("\nUpdating departments...\n".data);
             // when finished prompting, insert a new item into the db with that info
             connection.query(
                 "INSERT INTO departments SET ?",
@@ -95,7 +124,7 @@ function createNewDepartment() {
                 },
                 function (err, res) {
                     if (err) throw err;
-                    console.log("Department Added!")
+                    console.log("\tNew department successfully added!\n".info)
                     promptSupervisor();
                 },
             );
@@ -103,5 +132,31 @@ function createNewDepartment() {
     })
 }
 
+function viewAllDepartments() {
+    console.log("\nShowing all departments...\n".info);
+    var query = "SELECT departments.department_id,departments.department_name,departments.over_head_costs FROM departments";
+    connection.query(
+      query, 
+      function (err, res) {
+        if (err) throw err;
+        console.table(res);
+        promptSupervisor();
+        }
+    )
+}
 
-promptSupervisor();
+function getAllDepartments() {
+    var query = "SELECT departments.department_id,departments.department_name,departments.over_head_costs FROM departments";
+    connection.query(
+    query, 
+    function (err, res) {
+    if (err) throw err;
+        var totalDepartmentArray = [];
+        for (var i = 0; i < res.length; i++) {
+            totalDepartmentArray.push(res[i].department_id);
+            }
+            
+        console.log(("...of " + totalDepartmentArray.length + " total departments...\n").data);
+
+    })
+}

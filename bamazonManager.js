@@ -29,6 +29,7 @@ var connection = mysql.createConnection({
   
 connection.connect(function (err) {
     if (err) throw err;
+    welcomeManager();
   });
 
 function welcomeManager() {
@@ -285,4 +286,4 @@ function removeProductFromInventory() {
 }
 
 // METHODS
-welcomeManager();
+// welcomeManager();
