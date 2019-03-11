@@ -107,13 +107,13 @@ function promptBuyer() {
           } else {
             connection.query(
               "UPDATE products SET stock_quantity = ?, product_sales = ? WHERE item_id = ?",
-              [
+              [ 
                 newStockQuantity,
                 productSales,
-                answer.item_idChoice
+                chosenItemID
               ], 
               function (err, res) {
-                  console.log("\tTransaction complete!".info.bold + "\n\tTotal Cost: ".info + "$" + costOfProduct + "\n".info);
+                  console.log("\tTransaction complete!".info.bold + "\n\tTotal Cost: ".info + "$" + costOfProduct.toFixed(2) + "\n".info);
                   console.log("\n")
                   inquirer  
                     .prompt([
@@ -164,6 +164,6 @@ function startShopping() {
 }
 
 function stopShopping() {
-  console.log("Thank you for stopping by. See you next time!");
+  console.log("\nThank you for stopping by. See you next time!\n".verbose);
   connection.end();
 }
