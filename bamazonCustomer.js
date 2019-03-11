@@ -48,6 +48,7 @@ function displayProducts() {
 }
 
 function promptBuyer() {
+  console.log("\n-----------------------------------------------\n".verbose);
   connection.query("SELECT * FROM products",
   function(err, res) {
     if (err) throw err;
@@ -114,7 +115,6 @@ function promptBuyer() {
               ], 
               function (err, res) {
                   console.log("\tTransaction complete!".info.bold + "\n\tTotal Cost: ".info + "$" + costOfProduct.toFixed(2) + "\n".info);
-                  console.log("\n")
                   inquirer  
                     .prompt([
                       {
