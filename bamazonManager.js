@@ -32,7 +32,7 @@ connection.connect(function (err) {
   });
 
 function welcomeManager() {
-    console.log("Welcome to Manager View!");
+    console.log("\nWelcome to Manager View!\n".verbose);
     promptManager();
   };
 
@@ -83,7 +83,7 @@ function promptManager() {
 
 // display all items available for sale
 function displayProducts() {
-    console.log("\nShowing current inventory...\n");
+    console.log("\nShowing current inventory...\n".info);
     connection.query(
       "SELECT * FROM products", 
       function (err, res) {
@@ -95,7 +95,7 @@ function displayProducts() {
 }
 
 function viewLowInventory() {
-    console.log("Getting low inventory items...\n");
+    console.log("\nGetting low inventory items...\n".data);
     connection.query(
         "SELECT * FROM products", 
           function (err, res) {
@@ -107,7 +107,12 @@ function viewLowInventory() {
                 }
             }
 
-            console.table(lowInventoryItems);
+            if (viewLowInventory.length === 0) {
+                console.log("\tThere are no low inventory items at this time.\n".info)
+            } else {
+                console.table(lowInventoryItems);
+            }
+            
             promptManager();
 
             }
@@ -160,7 +165,7 @@ function addNewProduct() {
             }
         }
         ]).then(function(answer) {
-            console.log("Updating inventory...\n");
+            console.log("\nUpdating inventory...\n".data);
             // when finished prompting, insert a new item into the db with that info
             connection.query(
                 "INSERT INTO products SET ?",
@@ -173,7 +178,7 @@ function addNewProduct() {
                 },
                 function (err, res) {
                     if (err) throw err;
-                    console.log("Updated!")
+                    console.log(("\t" + answer.productName + " has been successfully added!\n").info)
                     promptManager();
                 },
             );
@@ -214,7 +219,7 @@ function addToInventory() {
             }
         ])
         .then(function(answer) {
-            console.log("Updating inventory for " + answer.choice + "...");
+            console.log(("\nUpdating inventory for " + answer.choice + "...").data);
             var chosenItem;
             for (var i = 0; i < res.length; i++) {
                 if (res[i].product_name === answer.choice) {
@@ -236,7 +241,7 @@ function addToInventory() {
                 ],
                 function(error) {
                 if (error) throw err;
-                console.log("Inventory for " + answer.choice + " successfully updated with " + chosenItem.stock_quantity + " units.\nTotal units now at " + currentQuantity + ".");
+                console.log(("\n\tInventory for "+ answer.choice + " successfully updated with "+ chosenItem.stock_quantity + " units." + ("\n\tTotal units now at " + currentQuantity + ".\n").italic).info);
                 promptManager();
                 }
             );
@@ -263,13 +268,13 @@ function removeProductFromInventory() {
                         },
                 }
             ]).then(function(answer) {
-                console.log("Deleting " + answer.choice + "\n");
+                console.log(("Deleting " + answer.choice + "\n").data);
                 connection.query("DELETE FROM products WHERE ?",
                     {
                         product_name: answer.choice
                     },
                     function(err, res) {
-                        console.log(answer.choice + " successfully deleted!")
+                        console.log(("\t" + answer.choice + " successfully deleted!\n").info);
                     // Call readProducts AFTER the DELETE completes
                     promptManager();
                     }
