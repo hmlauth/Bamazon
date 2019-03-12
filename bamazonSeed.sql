@@ -69,3 +69,21 @@ SELECT
 FROM departments
 INNER JOIN products
 ON (products.department_name = departments.department_name);
+
+
+SELECT 
+	d.department_name,
+    SUM(p.product_sales) totalSales,
+    (p.product_sales - d.over_head_costs) as total_profit
+FROM departments d
+INNER JOIN products p
+ON (d.department_name = p.department_name)
+GROUP BY department_name;
+
+
+-- PROGRESS 3/11/19
+SELECT d.department_name
+FROM departments d
+INNER JOIN products p
+ON (d.department_name = p.department_name)
+GROUP BY department_name;

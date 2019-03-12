@@ -108,7 +108,7 @@ function viewLowInventory() {
                 }
             }
 
-            if (viewLowInventory.length === 0) {
+            if (lowInventoryItems.length === 0) {
                 console.log("\tThere are no low inventory items at this time.\n".info)
             } else {
                 console.table(lowInventoryItems);
@@ -243,7 +243,26 @@ function addToInventory() {
                 function(error) {
                 if (error) throw err;
                 console.log(("\n\tInventory for "+ answer.choice + " successfully updated with "+ chosenItem.stock_quantity + " units." + ("\n\tTotal units now at " + currentQuantity + ".\n").italic).info);
-                promptManager();
+                inquirer.prompt([
+                    {
+                        type: "rawlist",
+                        message: "Would you like to add to another low inventory item?",
+                        choices: ["Yes","No"],
+                        name: "choice"
+                    }
+                ])
+                .then(function(answer) {
+                    switch (answer.choice) {
+                        case ("Yes"):
+                        addToInventory();
+                        break;
+
+                        case ("No"):
+                        promptManager();
+                        break;
+                    }
+                })
+                    
                 }
             );
         });
