@@ -1,19 +1,3 @@
-DROP DATABASE IF EXISTS bamazon_db;
-DROP DATABASE IF EXISTS bamazon_db;
-CREATE DATABASE bamazon_db;
-
-USE bamazon_db;
-
-CREATE TABLE products (
-  item_id INT NOT NULL AUTO_INCREMENT,
-  product_name VARCHAR(30),
-  department_name VARCHAR(30),
-  price DECIMAL(11,2) NULL,
-  stock_quantity INT(11),
-  product_sales DECIMAL(11,2),
-  PRIMARY KEY (item_id)
-);
-
 INSERT INTO products (product_name,department_name,price,stock_quantity,product_sales)
 VALUES 
     ("Fortnite","Video Games","39.99",2,0.00),
@@ -27,14 +11,6 @@ VALUES
     ("Silicon Sheet","Home & Kitchen","29.99",40,0.00),
     ("Spiralizer","Home & Kitchen","9.99",65,0.00),
     ("Charcoal Face Mask","Beauty & Personal Care","4.99",100,0.00);
-
-
-CREATE TABLE departments (
-department_id INT NOT NULL AUTO_INCREMENT,
-department_name VARCHAR(50),
-over_head_costs INT(11),
-PRIMARY KEY (department_id)
-);
 
 INSERT INTO departments (department_name,over_head_costs)
 VALUES 
@@ -56,34 +32,25 @@ VALUES
 ("Travel",1000),
 ("Video Games",1000);
 
-SELECT * FROM products;
-SELECT * FROM departments
-
--- query to join table products and departments table for supervisor view and include the products.product_sales.
+-- query for supervisor view for table
 SELECT 
-	departments.department_id,
-    departments.department_name,
-    departments.over_head_costs, 
-    products.product_sales,
-    (products.product_sales - departments.over_head_costs) AS total_profit
-FROM departments
-INNER JOIN products
-ON (products.department_name = departments.department_name);
+	d.department_id AS Department_ID,
+	d.department_name AS Department_Name,
+    d.over_head_costs AS Overhead_Costs,
+    SUM(p.product_sales) Product_Sales,
+    (SUM(p.product_sales) - d.over_head_costs) as Total_Profits
+FROM departments d
+INNER JOIN products p
+ON (d.department_name = p.department_name)
+GROUP BY department_name, d.over_head_costs, d.department_id;
 
-
-SELECT 
+-- subquery for net total profits and net total sales 
+SELECT SUM(totalSales) as ts, SUM(total_profits) as tp FROM (SELECT 
 	d.department_name,
     SUM(p.product_sales) totalSales,
-    (p.product_sales - d.over_head_costs) as total_profit
+    (SUM(p.product_sales) - d.over_head_costs) as total_profits
 FROM departments d
 INNER JOIN products p
 ON (d.department_name = p.department_name)
-GROUP BY department_name;
-
-
--- PROGRESS 3/11/19
-SELECT d.department_name
-FROM departments d
-INNER JOIN products p
-ON (d.department_name = p.department_name)
-GROUP BY department_name;
+GROUP BY department_name, d.over_head_costs
+) as all_deparments;

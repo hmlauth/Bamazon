@@ -44,7 +44,7 @@ function promptSupervisor() {
         {
             type: "rawlist",
             message: "How would you like to proceed?",
-            choices: ["View Products for Sale","View All Departments","Create a New Department","Exit"],
+            choices: ["View Products Sales by Department","View All Departments","Create a New Department","Exit"],
             name: "supervisorChoice"
         }
     ])
@@ -54,7 +54,7 @@ function promptSupervisor() {
                 viewAllDepartments();
                 break;
 
-            case ("View Products for Sale"):
+            case ("View Products Sales by Department"):
                 viewProductsForSale();
                 break;
 
@@ -72,7 +72,7 @@ function promptSupervisor() {
 function viewProductsForSale() {
     getAllDepartments();
     console.log("\nGetting department overview...\n".data);
-        var query = "SELECT departments.department_id,departments.department_name,departments.over_head_costs,products.product_sales,(products.product_sales - departments.over_head_costs) AS total_profit FROM departments INNER JOIN products ON (products.department_name = departments.department_name)";
+        var query = "SELECT d.department_id AS Department_ID, d.department_name AS Department_Name, d.over_head_costs AS Overhead_Costs, SUM(p.product_sales) AS Product_Sales, (SUM(p.product_sales) - d.over_head_costs) AS Total_Profits FROM departments d INNER JOIN products p ON (d.department_name = p.department_name) GROUP BY department_name, d.over_head_costs, d.department_id"
         connection.query(
             query, 
             function (err, res) {
@@ -86,7 +86,18 @@ function viewProductsForSale() {
                     console.log(("Showing " + totalActiveDepartmentArray.length + " active departments.\n").info);
 
                 console.table(res);
-                promptSupervisor();
+            
+                // query total sales and total profits
+                var queryTotals = "SELECT SUM(totalSales) as Total_Sales, SUM(total_profits) as Total_Profits FROM (SELECT d.department_name,SUM(p.product_sales) totalSales,(SUM(p.product_sales) - d.over_head_costs) as total_profits FROM departments d INNER JOIN products p ON (d.department_name = p.department_name) GROUP BY department_name, d.over_head_costs) as all_deparments"
+                connection.query(
+                    queryTotals,
+                    function(err, res) {
+                        if (err) throw err;
+                        console.table(res);
+                        promptSupervisor();
+                    }
+                )
+                
             }
         )
 }
@@ -134,7 +145,7 @@ function createNewDepartment() {
 
 function viewAllDepartments() {
     console.log("\nShowing all departments...\n".info);
-    var query = "SELECT departments.department_id,departments.department_name,departments.over_head_costs FROM departments";
+    var query = "SELECT departments.department_id AS Department_ID,departments.department_name AS Department_Name,departments.over_head_costs AS Overhead_Costs FROM departments";
     connection.query(
       query, 
       function (err, res) {
