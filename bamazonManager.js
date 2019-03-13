@@ -76,7 +76,9 @@ function promptManager() {
                     break;
                     
                 case "Exit":
+                    sayGoodbye();
                     connection.end();
+                    break;
                 }
             }
         )
@@ -304,5 +306,6 @@ function removeProductFromInventory() {
     )
 }
 
-// METHODS
-// welcomeManager();
+function sayGoodbye() {
+    console.log("\nBye!\n".data)
+}

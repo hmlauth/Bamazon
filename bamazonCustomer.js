@@ -144,7 +144,6 @@ function promptBuyer() {
     });
   }; 
 
-
 function startShopping() {
   console.log("\nWelcome to Bamazon!\n".verbose);
   inquirer.prompt([
@@ -164,6 +163,6 @@ function startShopping() {
 }
 
 function stopShopping() {
-  console.log("\nThank you for stopping by. See you next time!\n".verbose);
+  console.log("\nThanks for shopping. See you next time!\n".verbose);
   connection.end();
 }

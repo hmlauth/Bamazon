@@ -63,6 +63,7 @@ function promptSupervisor() {
                 break;
 
             case ("Exit"):
+                sayGoodbye();
                 connection.end();
                 break;
         }
@@ -170,4 +171,8 @@ function getAllDepartments() {
         console.log(("...of " + totalDepartmentArray.length + " total departments...\n").data);
 
     })
+}
+
+function sayGoodbye() {
+    console.log("\nBye!\n".data)
 }
