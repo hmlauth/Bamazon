@@ -1,7 +1,9 @@
 var inquirer = require("inquirer");
 const mysql = require("mysql");
 const config = require('./config');
+
 const connection = mysql.createConnection(config);
+
 connection.connect(function (err) {
     if (err) { throw err }
 });
@@ -147,7 +149,8 @@ function getAllDepartments() {
 }
 
 function sayGoodbye() {
-    console.log("\nBye!\n".data)
+    console.log("\nBye!\n".data);
+    connection.end();
 }
 
 module.exports = {

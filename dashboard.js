@@ -1,5 +1,4 @@
 // Require dependencies
-
 const inquirer = require("inquirer");
 const colors = require('colors');
     colors.setTheme({
@@ -17,7 +16,6 @@ const colors = require('colors');
 const mysql = require("mysql");
 const config = require('./config');
 
-
 // Require Customer, Manager, and Supervisor files
 const Customer = require('./bamazonCustomer.js');
 const Manager = require('./bamazonManager.js');
@@ -25,7 +23,7 @@ const Supervisor = require('./bamazonSupervisor.js');
 
 const connection = mysql.createConnection(config);
 
-connection.connect(function (err) {
+connection.connect((err) => {
     if (err) { throw err }
     else { displayDashboard() }
 });
@@ -36,8 +34,8 @@ function displayDashboard() {
         .prompt([
             {
                 type: "list",
-                message: "Please select desire view:",
-                choices: ['Customer','Manager','Supervisor'],
+                message: "Please select desired view:",
+                choices: ['Customer','Manager','Supervisor','Exit'],
                 name: "command"
             }
         ]).then(function (answer) {
@@ -57,6 +55,10 @@ function start(command) {
     
         case 'Supervisor':
         Supervisor.startSupervisorView();
+        break;
+
+        case 'Exit':
+        connect.end();
         break;
     }
 }

@@ -1,8 +1,9 @@
 const inquirer = require("inquirer");
-
 const mysql = require("mysql");
 const config = require('./config');
+
 const connection = mysql.createConnection(config);
+
 connection.connect(function (err) {
     if (err) { throw err }
 });
@@ -17,11 +18,15 @@ function startShopping() {
       choices: ["Yes","Exit"],
       name: "buyerChoice"
     }
-  ]).then(function (answer) {
-    if (answer.buyerChoice === "Exit") {
+  ]).then(answer => {
+    switch (answer.buyerChoice) {
+      case 'Exit':
       stopShopping();
-    } else if (answer.buyerChoice === "Yes") {
+      break;
+
+      case 'Yes':
       displayProducts();
+      break;
     }
   }
   )
@@ -43,7 +48,7 @@ function displayProducts() {
 function promptBuyer() {
   console.log("\n-----------------------------------------------\n".verbose);
   connection.query("SELECT * FROM products",
-  function(err, res) {
+  (err, res) => {
     if (err) throw err;
     inquirer.prompt([
       {
@@ -75,10 +80,10 @@ function promptBuyer() {
       connection.query(
         "SELECT * FROM products WHERE ?", 
         { item_id: chosenItemID }, 
-        function (err, res) {
+        (err, res) => {
           if (err) throw err;
-          let oldStockQuantity = parseInt(res[0].stock_quantity);
-          let newStockQuantity = parseInt(oldStockQuantity) - parseInt(answer.stock_quantityChoice);
+          let oldStockQuantity = res[0].stock_quantity;
+          let newStockQuantity = oldStockQuantity - answer.stock_quantityChoice;
           // total cost of purchase
           let costOfPurchase = parseFloat(res[0].price) * parseInt(answer.stock_quantityChoice);
           let productSales = parseFloat(res[0].product_sales) + parseFloat(costOfPurchase);
@@ -99,15 +104,16 @@ function promptBuyer() {
     });
   }; 
 
-function updateProducts(newStockQuantity,productSales,chosenItemID, costOfPurchase) {
-  connection.query(
-    "UPDATE products SET ?? WHERE ?",
-    [ 
-      {stock_quantity: newStockQuantity},
-      {product_sales: productSales},
-      {item_id: chosenItemID}
-    ], 
-    function (err, res) {
+function updateProducts(newStockQuantity, productSales, chosenItemID, costOfPurchase) {
+  let query = "UPDATE products SET stock_quantity = ?, product_sales = ? WHERE item_id = ?";
+  connection.query( 
+    query,
+      [ 
+        newStockQuantity,
+        productSales,
+        chosenItemID
+      ], 
+    (err, res) => {
         console.log("\tTransaction complete!".info.bold + "\n\tTotal Cost: ".info + "$" + costOfPurchase.toFixed(2) + "\n".info);
         inquirer  
           .prompt([
