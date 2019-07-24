@@ -14,12 +14,12 @@ const colors = require('colors');
 
 // Require connection
 const mysql = require("mysql");
-const config = require('./config');
+const config = require('./seedData/config/config');
 
 // Require Customer, Manager, and Supervisor files
-const Customer = require('./bamazonCustomer.js');
-const Manager = require('./bamazonManager.js');
-const Supervisor = require('./bamazonSupervisor.js');
+const Customer = require('./app/bamazonCustomer.js');
+const Manager = require('./app/bamazonManager.js');
+const Supervisor = require('./app/bamazonSupervisor.js');
 
 const connection = mysql.createConnection(config);
 
@@ -62,3 +62,4 @@ function start(command) {
         break;
     }
 }
+

@@ -1,6 +1,6 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
-const config = require('./config');
+const config = require('../seedData/config/config');
 
 const connection = mysql.createConnection(config);
 

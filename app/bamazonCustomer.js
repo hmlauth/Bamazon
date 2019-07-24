@@ -1,10 +1,10 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
-const config = require('./config');
+const config = require('../seedData/config/config');
 
 const connection = mysql.createConnection(config);
 
-connection.connect(function (err) {
+connection.connect((err) => {
     if (err) { throw err }
 });
 
@@ -141,9 +141,9 @@ function updateProducts(newStockQuantity, productSales, chosenItemID, costOfPurc
 
 function stopShopping() {
   console.log("\nThanks for shopping. See you next time!\n".verbose);
-  connection.end();
 }
 
+// Helper functions
 function findChosenItem(array, answer) {
   for (let i = 0; i < array.length; i++) {
     if (array[i].product_name === answer.item_idChoice) {

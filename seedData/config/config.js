@@ -1,5 +1,5 @@
 // REQUIRES
-const keys = require('./keys');
+const keys = require('../../config/keys');
 
 // GLOBALS
 const config = {
