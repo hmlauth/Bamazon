@@ -1,7 +1,6 @@
 // Require dependencies
-const mysql = require("mysql");
+
 const inquirer = require("inquirer");
-const config = require('./config');
 const colors = require('colors');
     colors.setTheme({
         input: 'blue',
@@ -14,19 +13,24 @@ const colors = require('colors');
         silly: 'rainbow'
     });
 
-const Customer = require('./bamazonCustomer.js');
-console.log('CUSTOMER', Customer);
+// Require connection
+const mysql = require("mysql");
+const config = require('./config');
 
-
-// CONNECT TO MYSQL
-const connection = mysql.createConnection(config);
-connection.connect(function (err) {
-  if (err) throw err;
-  displayDashboard();
-});
 
 // Require Customer, Manager, and Supervisor files
-// Create inquirer prompt to switch between dashboards
+const Customer = require('./bamazonCustomer.js');
+const Manager = require('./bamazonManager.js');
+const Supervisor = require('./bamazonSupervisor.js');
+
+const connection = mysql.createConnection(config);
+
+connection.connect(function (err) {
+    if (err) { throw err }
+    else { displayDashboard() }
+});
+
+// Display Dashboard
 function displayDashboard() {
     inquirer
         .prompt([
@@ -36,24 +40,23 @@ function displayDashboard() {
                 choices: ['Customer','Manager','Supervisor'],
                 name: "command"
             }
-        ]).then(function (command) {
-            console.log(command);
-            start(command);
+        ]).then(function (answer) {
+            start(answer.command);
         })
 }
 
 function start(command) {
     switch (command) {
         case 'Customer':
-        startCustomerView();
+        Customer.startCustomerView();
         break;
     
         case 'Manager':
-        startManagerView();
+        Manager.startManagerView();
         break;
     
         case 'Supervisor':
-        startSupervisorView();
+        Supervisor.startSupervisorView();
         break;
     }
 }

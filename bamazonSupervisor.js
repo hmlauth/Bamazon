@@ -1,36 +1,9 @@
-var mysql = require("mysql");
 var inquirer = require("inquirer");
-var consoleTable = require("console.table");
-var colors = require('colors');
-    colors.setTheme({
-        input: 'blue',
-        verbose: 'cyan',
-        prompt: 'white',
-        info: 'green',
-        data: 'grey',
-        warn: 'yellow',
-        error: 'red',
-        silly: 'rainbow'
-    });
-
-// CONNECT TO MYSQL
-var connection = mysql.createConnection({
-  host: "localhost",
-
-  // Your port
-  port: 3306,
-
-  // Your username
-  user: "root",
-
-  // Your password
-  password: "password",
-  database: "bamazon_db"
-});
-
+const mysql = require("mysql");
+const config = require('./config');
+const connection = mysql.createConnection(config);
 connection.connect(function (err) {
-  if (err) throw err;
-  welcomeSupervisor();
+    if (err) { throw err }
 });
 
 function welcomeSupervisor() {
@@ -175,4 +148,8 @@ function getAllDepartments() {
 
 function sayGoodbye() {
     console.log("\nBye!\n".data)
+}
+
+module.exports = {
+    startSupervisorView: welcomeSupervisor
 }

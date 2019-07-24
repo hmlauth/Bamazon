@@ -5,9 +5,9 @@ const keys = require('./keys');
 const config = {
     host: keys.mysql.host,
     port: keys.mysql.port,
-    user: keys.mysql.username,
+    user: keys.mysql.user,
     password: keys.mysql.password,
-    database: keys.mysql.password
+    database: keys.mysql.database
 };
 
 // EXPORTS

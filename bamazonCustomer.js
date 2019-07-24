@@ -1,3 +1,11 @@
+const inquirer = require("inquirer");
+
+const mysql = require("mysql");
+const config = require('./config');
+const connection = mysql.createConnection(config);
+connection.connect(function (err) {
+    if (err) { throw err }
+});
 
 // FUNCTIONS
 function startShopping() {
@@ -43,11 +51,9 @@ function promptBuyer() {
         message: "Which product would you like to purchase?\n",
         name: "item_idChoice",
         choices: function() {
-          var choiceArray = [];
-          for (var i = 0; i < res.length; i++) {
-              choiceArray.push(res[i].product_name);
-              }
-              return choiceArray;
+          let choiceArray = [];
+          res.forEach(cv => choiceArray.push(cv.product_name))
+          return choiceArray;
           },
       },
       {
@@ -55,33 +61,27 @@ function promptBuyer() {
         message: "How many units would you like buy?",
         name: "stock_quantityChoice",
         validate: function(value) {
-          if (isNaN(value) === false) {
+          if (!isNaN(value)) {
             return true;
           }
           return "Please enter a valid number";
         }
       }
-    ]).then(function (answer) {
+    ]).then( answer => {
       console.log("\nTransaction processing...\n".data);
       
-      var chosenItem;
-      for (var i = 0; i < res.length; i++) {
-          if (res[i].product_name === answer.item_idChoice) {
-              chosenItem = res[i]
-          }
-      }
-      var chosenItemID = chosenItem.item_id;
-
+     let chosenItemID = findChosenItem(res, answer);
+      
       connection.query(
-        "SELECT stock_quantity,price,product_sales FROM products WHERE item_id = ?", 
-        chosenItemID, 
+        "SELECT * FROM products WHERE ?", 
+        { item_id: chosenItemID }, 
         function (err, res) {
           if (err) throw err;
-          var oldStockQuantity = res[0].stock_quantity;
-          var newStockQuantity = oldStockQuantity - answer.stock_quantityChoice;
+          let oldStockQuantity = parseInt(res[0].stock_quantity);
+          let newStockQuantity = parseInt(oldStockQuantity) - parseInt(answer.stock_quantityChoice);
           // total cost of purchase
-          var costOfProduct = res[0].price * answer.stock_quantityChoice;
-          var productSales = res[0].product_sales + costOfProduct;
+          let costOfPurchase = parseFloat(res[0].price) * parseInt(answer.stock_quantityChoice);
+          let productSales = parseFloat(res[0].product_sales) + parseFloat(costOfPurchase);
 
           if (newStockQuantity < 0) {
               if (oldStockQuantity === 1) {
@@ -91,37 +91,7 @@ function promptBuyer() {
               }
             promptBuyer();
           } else {
-            connection.query(
-              "UPDATE products SET stock_quantity = ?, product_sales = ? WHERE item_id = ?",
-              [ 
-                newStockQuantity,
-                productSales,
-                chosenItemID
-              ], 
-              function (err, res) {
-                  console.log("\tTransaction complete!".info.bold + "\n\tTotal Cost: ".info + "$" + costOfProduct.toFixed(2) + "\n".info);
-                  inquirer  
-                    .prompt([
-                      {
-                        type: "rawlist",
-                        message: "Would you like to place another purchase?",
-                        choices: ["Yes","No"],
-                        name: "secondPurchaseChoice"
-                      }
-                    ])
-                    .then(function(answer) {
-                      switch (answer.secondPurchaseChoice) {
-                        case "Yes":
-                          promptBuyer();
-                          break;
-
-                        case "No":
-                          stopShopping();
-                          break;
-                      }
-                    })
-                } 
-              ) 
+            updateProducts(newStockQuantity,productSales,chosenItemID, costOfPurchase);
             } 
           } 
         )
@@ -129,9 +99,51 @@ function promptBuyer() {
     });
   }; 
 
+function updateProducts(newStockQuantity,productSales,chosenItemID, costOfPurchase) {
+  connection.query(
+    "UPDATE products SET ?? WHERE ?",
+    [ 
+      {stock_quantity: newStockQuantity},
+      {product_sales: productSales},
+      {item_id: chosenItemID}
+    ], 
+    function (err, res) {
+        console.log("\tTransaction complete!".info.bold + "\n\tTotal Cost: ".info + "$" + costOfPurchase.toFixed(2) + "\n".info);
+        inquirer  
+          .prompt([
+            {
+              type: "rawlist",
+              message: "Would you like to place another purchase?",
+              choices: ["Yes","No"],
+              name: "secondPurchaseChoice"
+            }
+          ])
+          .then(answer => {
+            switch (answer.secondPurchaseChoice) {
+              case "Yes":
+                promptBuyer();
+                break;
+
+              case "No":
+                stopShopping();
+                break;
+            }
+          })
+      } 
+    ) 
+}
+
 function stopShopping() {
   console.log("\nThanks for shopping. See you next time!\n".verbose);
   connection.end();
+}
+
+function findChosenItem(array, answer) {
+  for (let i = 0; i < array.length; i++) {
+    if (array[i].product_name === answer.item_idChoice) {
+        return array[i].item_id
+    }
+  }
 }
 
 module.exports = {

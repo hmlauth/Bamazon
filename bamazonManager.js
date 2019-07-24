@@ -1,36 +1,10 @@
-var mysql = require("mysql");
-var inquirer = require("inquirer");
-var consoleTable = require("console.table");
-var colors = require('colors');
-    colors.setTheme({
-        input: 'blue',
-        verbose: 'cyan',
-        prompt: 'white',
-        info: 'green',
-        data: 'grey',
-        warn: 'yellow',
-        error: 'red',
-        silly: 'rainbow'
-    });
-
-var connection = mysql.createConnection({
-    host: "localhost",
-  
-    // Your port
-    port: 3306,
-  
-    // Your username
-    user: "root",
-  
-    // Your password
-    password: "password",
-    database: "bamazon_db"
-  });
-  
+const inquirer = require("inquirer");
+const mysql = require("mysql");
+const config = require('./config');
+const connection = mysql.createConnection(config);
 connection.connect(function (err) {
-    if (err) throw err;
-    welcomeManager();
-  });
+    if (err) { throw err }
+});
 
 function welcomeManager() {
     console.log("\nWelcome to Manager View!\n".verbose);
@@ -308,4 +282,8 @@ function removeProductFromInventory() {
 
 function sayGoodbye() {
     console.log("\nBye!\n".data)
+}
+
+module.exports = {
+    startManagerView: welcomeManager
 }
