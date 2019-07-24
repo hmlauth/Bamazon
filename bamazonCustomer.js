@@ -1,39 +1,24 @@
-var mysql = require("mysql");
-var inquirer = require("inquirer");
-var consoleTable = require("console.table");
-var colors = require('colors');
-    colors.setTheme({
-        input: 'blue',
-        verbose: 'cyan',
-        prompt: 'white',
-        info: 'green',
-        data: 'grey',
-        warn: 'yellow',
-        error: 'red',
-        silly: 'rainbow'
-    });
-
-// CONNECT TO MYSQL
-var connection = mysql.createConnection({
-  host: "localhost",
-
-  // Your port
-  port: 3306,
-
-  // Your username
-  user: "root",
-
-  // Your password
-  password: "password",
-  database: "bamazon_db"
-});
-
-connection.connect(function (err) {
-  if (err) throw err;
-  startShopping();
-});
 
 // FUNCTIONS
+function startShopping() {
+  console.log("\nWelcome to Bamazon!\n".verbose);
+  inquirer.prompt([
+    {
+      type: "list",
+      message: "Select 'Yes' to start shopping!",
+      choices: ["Yes","Exit"],
+      name: "buyerChoice"
+    }
+  ]).then(function (answer) {
+    if (answer.buyerChoice === "Exit") {
+      stopShopping();
+    } else if (answer.buyerChoice === "Yes") {
+      displayProducts();
+    }
+  }
+  )
+}
+
 // display all items available for sale
 function displayProducts() {
   console.log("\nShowing current inventory...\n".info);
@@ -78,7 +63,7 @@ function promptBuyer() {
       }
     ]).then(function (answer) {
       console.log("\nTransaction processing...\n".data);
-
+      
       var chosenItem;
       for (var i = 0; i < res.length; i++) {
           if (res[i].product_name === answer.item_idChoice) {
@@ -126,11 +111,11 @@ function promptBuyer() {
                     ])
                     .then(function(answer) {
                       switch (answer.secondPurchaseChoice) {
-                        case ("Yes"):
+                        case "Yes":
                           promptBuyer();
                           break;
 
-                        case("No"):
+                        case "No":
                           stopShopping();
                           break;
                       }
@@ -144,25 +129,11 @@ function promptBuyer() {
     });
   }; 
 
-function startShopping() {
-  console.log("\nWelcome to Bamazon!\n".verbose);
-  inquirer.prompt([
-    {
-      type: "list",
-      message: "Select 'Yes' to start shopping!",
-      choices: ["Yes","Exit"],
-      name: "buyerChoice"
-    }
-  ]).then(function (answer) {
-    if (answer.buyerChoice === "Exit") {
-      stopShopping();
-    } else if (answer.buyerChoice === "Yes") {
-      displayProducts();
-    }
-  })
-}
-
 function stopShopping() {
   console.log("\nThanks for shopping. See you next time!\n".verbose);
   connection.end();
+}
+
+module.exports = {
+  startCustomerView: startShopping
 }
