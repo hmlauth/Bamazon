@@ -94,6 +94,8 @@ function promptBuyer() {
                 console.log("Insufficient quantity!".warn + " There is only ".info + oldStockQuantity + " unit of this product available.".info);
               } else if (oldStockQuantity > 1) {
                 console.log("Insufficient quantity!".warn + " There are only ".info + oldStockQuantity + " units of this product available.".info);
+              } else {
+                console.log("Out of stock".warn);
               }
             promptBuyer();
           } else {
