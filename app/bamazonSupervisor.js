@@ -1,4 +1,5 @@
-var inquirer = require("inquirer");
+const cTable = require('console.table');
+const inquirer = require("inquirer");
 const mysql = require("mysql");
 const config = require('../config/config.js');
 
