@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dashboard.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "mysql": "mysql -u root -p bamazon_db"
+    "mysql": "mysql -u <username> -p bamazon_db"
   },
   "repository": {
     "type": "git",
