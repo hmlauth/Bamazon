@@ -1,14 +1,11 @@
 // REQUIRES
-const keys = require('../../keys');
+const { mysql: { host, port, user, password, database} } = require('./keys');
 
 // GLOBALS
-const config = {
-    host: keys.mysql.host,
-    port: keys.mysql.port,
-    user: keys.mysql.user,
-    password: keys.mysql.password,
-    database: keys.mysql.database
+module.exports = config = { 
+    host,
+    port,
+    user,
+    password,
+    database
 };
-
-// EXPORTS
-module.exports = config;
